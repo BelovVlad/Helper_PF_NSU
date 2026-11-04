@@ -3,7 +3,8 @@ try {
   const theme = JSON.parse(localStorage.getItem('pweb.home.v1'))?.settings?.theme;
   root.dataset.theme = theme === 'light' || (theme === 'system' && matchMedia('(prefers-color-scheme:light)').matches) ? 'light' : 'dark';
 } catch {}
-const container = document.querySelector('#sections'), nav = document.querySelector('#nav'), search = document.querySelector('#search');
+const container = document.querySelector('#sections'), search = document.querySelector('#search');
+const home = document.querySelector('#home'), page = document.querySelector('#semester'), semesters = document.querySelector('#semesters');
 const downloadIcon = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 4v11m-5-5 5 5 5-5M5 20h14"/></svg>';
 const url = path => './' + path.split('/').map(encodeURIComponent).join('/');
 const size = bytes => bytes >= 1024 * 1024 ? (bytes / 1024 / 1024).toFixed(1) + ' МБ' : Math.max(1, Math.ceil(bytes / 1024)) + ' КБ';
@@ -11,8 +12,7 @@ const date = iso => new Date(iso).toLocaleDateString('ru-RU', { day: 'numeric', 
 const anchor = name => 's-' + name;
 function el(tag, className, text) { const node = document.createElement(tag); if (className) node.className = className; if (text != null) node.textContent = text; return node; }
 let catalog = { sections: [], files: [] };
-// Folded semesters and subjects are remembered per browser. Semesters start folded (there are many books),
-// subjects start open unless meta.json says "collapsed".
+// Folded subjects are remembered per browser; they start open unless meta.json says "collapsed".
 const FOLD_KEY = 'pweb.helper.folded.v1';
 let folded = {};
 try { folded = JSON.parse(localStorage.getItem(FOLD_KEY)) || {}; } catch {}
@@ -48,42 +48,45 @@ function fileRow(file) {
   }
   return row;
 }
+// Two views on one page: the semester cards, and one semester (#s-<name>, which the viewer's back button
+// also points at) with its subjects and books.
+let current = null;
 function render() {
-  const query = search.value.trim().toLocaleLowerCase('ru');
+  const section = current, query = search.value.trim().toLocaleLowerCase('ru');
   const match = file => !query || [file.title, file.description, file.path].join(' ').toLocaleLowerCase('ru').includes(query);
-  container.replaceChildren(); nav.replaceChildren();
-  let shown = 0;
-  for (const section of catalog.sections) {
-    const files = catalog.files.filter(f => f.section === section.name && match(f));
-    const link = el('a', '', section.title); link.href = '#' + anchor(section.name); link.append(el('span', '', String(files.length)));
-    nav.append(link);
-    if (query && !files.length) continue;
-    shown += files.length;
-    const heading = el('h2', '', section.title); heading.append(el('small', '', String(files.length)));
-    const block = fold('section', section.name, true, heading, !!query); block.id = anchor(section.name);
-    if (section.description) block.append(el('p', 'description', section.description));
-    const direct = files.filter(f => !f.group);
-    if (direct.length) { const list = el('div', 'files'); list.append(...direct.map(fileRow)); block.append(list); }
-    for (const group of section.groups) {
-      const own = files.filter(f => f.group === group.name);
-      if (query && !own.length) continue;
-      const title = el('h3', '', group.title); title.append(el('small', '', String(own.length)));
-      const box = fold('group', section.name + '/' + group.name, group.collapsed, title, !!query);
-      if (group.description) box.append(el('p', 'description', group.description));
-      const list = el('div', 'files'); list.append(...own.map(fileRow));
-      if (!own.length) list.append(el('p', 'empty', 'Пока пусто'));
-      box.append(list); block.append(box);
-    }
-    if (!files.length && !section.groups.length) block.append(el('p', 'empty', 'Пока пусто'));
-    container.append(block);
+  const files = catalog.files.filter(f => f.section === section.name && match(f));
+  container.replaceChildren();
+  document.querySelector('#semester-count').textContent = plural(files.length, 'файл', 'файла', 'файлов');
+  const direct = files.filter(f => !f.group);
+  if (direct.length) { const list = el('div', 'files'); list.append(...direct.map(fileRow)); container.append(list); }
+  for (const group of section.groups) {
+    const own = files.filter(f => f.group === group.name);
+    if (query && !own.length) continue;
+    const heading = el('h2', '', group.title); heading.append(el('small', '', String(own.length)));
+    const box = fold('section', section.name + '/' + group.name, group.collapsed, heading, !!query);
+    if (group.description) box.append(el('p', 'description', group.description));
+    const list = el('div', 'files'); list.append(...own.map(fileRow));
+    if (!own.length) list.append(el('p', 'empty', 'Пока пусто'));
+    box.append(list); container.append(box);
   }
-  if (query && !shown) container.append(el('p', 'empty', 'Ничего не нашлось'));
-  if (!query && location.hash && !container.dataset.scrolled) { container.dataset.scrolled = '1'; reveal(decodeURIComponent(location.hash.slice(1))); }
+  if (!container.children.length) container.append(el('p', 'empty', query ? 'Ничего не нашлось' : 'Пока пусто'));
 }
-// A section link or a hash from the viewer's back button opens the folded section.
-function reveal(id) { const target = document.getElementById(id); if (!target) return; target.open = true; target.scrollIntoView(); }
-// Semester cards over the list: a dot field each (assets/semesters.js) with the number on it; a card opens its semester.
-const semesters = document.querySelector('#semesters');
+function route() {
+  const id = decodeURIComponent(location.hash.slice(1));
+  current = catalog.sections.find(s => anchor(s.name) === id) || null;
+  home.hidden = !!current; page.hidden = !current;
+  if (current) {
+    document.title = current.title + ' · Хелпер ФФ · Hyle';
+    document.querySelector('#semester-title').textContent = current.title;
+    const note = document.querySelector('#semester-note'); note.textContent = current.description; note.hidden = !current.description;
+    search.value = ''; render();
+  } else {
+    document.title = 'Хелпер ФФ · Hyle';
+    window.HelperSemesters?.redraw();
+  }
+  scrollTo(0, 0);
+}
+// Semester cards: a dot field each (assets/semesters.js) with the number on it; a card opens its semester.
 const semesterOf = name => Number((/^(\d+)\s*семестр/i.exec(name) || [])[1]) || 0;
 const plural = (n, one, few, many) => { const m = n % 10, h = n % 100; return n + ' ' + (m === 1 && h !== 11 ? one : m >= 2 && m <= 4 && (h < 10 || h >= 20) ? few : many); };
 function renderSemesters() {
@@ -102,13 +105,18 @@ function renderSemesters() {
   }
   window.HelperSemesters?.mount(semesters);
 }
-semesters.addEventListener('click', e => { const link = e.target.closest('a.semester'); if (!link) return; e.preventDefault(); const id = link.hash.slice(1); history.replaceState(null, '', '#' + id); reveal(decodeURIComponent(id)); });
-nav.addEventListener('click', e => { const link = e.target.closest('a'); if (!link) return; e.preventDefault(); const id = link.hash.slice(1); history.replaceState(null, '', '#' + id); reveal(decodeURIComponent(id)); });
+// «Все семестры» goes back in history when it came from the cards, so the page keeps its place.
+document.querySelector('.crumb').addEventListener('click', e => {
+  e.preventDefault();
+  if (history.state?.fromCards) history.back(); else { history.pushState(null, '', location.pathname); route(); }
+});
+semesters.addEventListener('click', e => { const link = e.target.closest('a.semester'); if (!link) return; e.preventDefault(); history.pushState({ fromCards: true }, '', link.hash); route(); });
+addEventListener('popstate', route);
 search.addEventListener('input', render);
 try {
   const response = await fetch('./materials.json', { cache: 'no-cache' });
   if (!response.ok) throw new Error('catalog');
   catalog = await response.json();
-  render();
   renderSemesters();
-} catch { container.replaceChildren(el('p', 'empty', 'Не удалось загрузить список файлов. Обновите страницу.')); }
+  route();
+} catch { semesters.replaceChildren(el('p', 'empty', 'Не удалось загрузить список файлов. Обновите страницу.')); }

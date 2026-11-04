@@ -109,6 +109,6 @@
   let resizing; addEventListener('resize', () => { clearTimeout(resizing); resizing = setTimeout(redraw, 120); });
   still.addEventListener('change', redraw);
   addEventListener('load', () => dots()?.onChange?.(redraw));
-  window.HelperSemesters = { mount };
+  window.HelperSemesters = { mount, redraw };
   mount();
 })();

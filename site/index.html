@@ -7,11 +7,15 @@
 </head>
 <body>
   <header><a class="brand" href="/"><img src="./assets/logo.svg?v=3" width="38" height="38" alt=""><strong>Hyle</strong></a><a class="back" href="/">← К хабу</a></header>
-  <main>
+  <main id="home">
     <div class="intro"><p class="eyebrow">ХЕЛПЕР ФФ НГУ</p><h1>Литература по семестрам</h1><p>Книги и пособия физического факультета, разложенные по семестрам и предметам. PDF открываются в просмотрщике: на страницах можно рисовать и оставлять заметки, они хранятся в этом браузере.</p></div>
-    <nav class="semesters" id="semesters" aria-label="Семестры"></nav>
-    <div class="toolbar"><nav id="nav" aria-label="Семестры"></nav><label><span class="sr-only">Поиск по файлам</span><input type="search" id="search" placeholder="Найти книгу" autocomplete="off"></label></div>
-    <div id="sections" aria-live="polite"><p class="empty">Загрузка…</p></div>
+    <div class="semesters" id="semesters" aria-label="Семестры"></div>
+    <footer>Литература физического факультета НГУ</footer>
+  </main>
+  <main id="semester" hidden>
+    <div class="intro"><a class="crumb" href="./">← Все семестры</a><h1 id="semester-title"></h1><p id="semester-note"></p></div>
+    <div class="toolbar"><span id="semester-count"></span><label><span class="sr-only">Поиск по файлам</span><input type="search" id="search" placeholder="Найти книгу" autocomplete="off"></label></div>
+    <div id="sections" aria-live="polite"></div>
     <footer>Литература физического факультета НГУ</footer>
   </main>
 </body>
