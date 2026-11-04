@@ -1,0 +1,98 @@
+/* Roboto Condensed (SIL OFL 1.1, ../viewer/fonts/OFL.txt): the stand-in for Bahnschrift where Windows does not
+   provide it. Declared here rather than @import-ed, so the page does not wait for one more stylesheet. */
+@font-face{font-family:"Roboto Condensed";font-style:normal;font-display:swap;font-weight:100 900;src:url(../viewer/fonts/roboto-condensed-cyrillic-wght-normal.woff2) format("woff2");unicode-range:U+0301,U+0400-045F,U+0490-0491,U+04B0-04B1,U+2116}
+@font-face{font-family:"Roboto Condensed";font-style:normal;font-display:swap;font-weight:100 900;src:url(../viewer/fonts/roboto-condensed-latin-ext-wght-normal.woff2) format("woff2");unicode-range:U+0100-02BA,U+02BD-02C5,U+02C7-02CC,U+02CE-02D7,U+02DD-02FF,U+0304,U+0308,U+0329,U+1D00-1DBF,U+1E00-1E9F,U+1EF2-1EFF,U+2020,U+20A0-20AB,U+20AD-20C0,U+2113,U+2C60-2C7F,U+A720-A7FF}
+@font-face{font-family:"Roboto Condensed";font-style:normal;font-display:swap;font-weight:100 900;src:url(../viewer/fonts/roboto-condensed-latin-wght-normal.woff2) format("woff2");unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD}
+:root{--bg:#080d12;--panel:#0e151c;--line:#25303a;--text:#f1ede7;--text2:#c9c2b9;--muted:#7e8892;--cream:#ead4b7;--warm:#b78b62;--accent:#d64c50;color-scheme:dark}
+:root[data-theme=light]{--bg:#f5f3ef;--panel:#fcfbf8;--line:#d7d1c7;--text:#282a2b;--text2:#53514d;--muted:#746e65;--cream:#624a33;--warm:#8a6440;--accent:#b3333b;color-scheme:light}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--text);font:14px/1.5 "Bahnschrift","Roboto Condensed","Segoe UI",system-ui,sans-serif}
+a{color:inherit}
+a:focus-visible,input:focus-visible{outline:2px solid var(--accent);outline-offset:3px}
+header{display:flex;align-items:center;justify-content:space-between;gap:20px;border-bottom:1px solid var(--line);padding:21px max(25px,calc((100vw - 1000px)/2))}
+.brand{display:flex;align-items:center;gap:12px;text-decoration:none}
+.brand strong{font:700 24px "Bahnschrift","Roboto Condensed","Segoe UI",system-ui,sans-serif;color:var(--cream)}
+.back{color:var(--muted);text-decoration:none;font-size:12px}.back:hover{color:var(--cream)}
+main{max-width:1050px;margin:auto;padding:44px 25px 0}
+.eyebrow{font-size:9px;letter-spacing:.16em;color:var(--muted);margin:0 0 12px}
+h1{font-size:37px;font-weight:500;letter-spacing:-.04em;margin:0;color:var(--cream)}
+.intro>p:last-child{color:var(--muted);font-size:13px;margin:12px 0 0;max-width:620px}
+.toolbar{position:sticky;top:0;z-index:2;display:flex;align-items:center;justify-content:space-between;gap:16px;background:var(--bg);border-bottom:1px solid var(--line);padding:16px 0;margin-top:26px}
+nav{display:flex;flex-wrap:wrap;gap:8px}
+nav a{display:inline-flex;align-items:center;gap:7px;border:1px solid var(--line);border-radius:999px;background:var(--panel);padding:7px 13px;text-decoration:none;font-size:12px}
+nav a:hover,nav a[aria-current=true]{border-color:var(--warm);color:var(--cream)}
+nav a span{color:var(--muted);font-size:10px}
+input{width:230px;max-width:100%;height:36px;border:1px solid var(--line);border-radius:7px;background:var(--panel);color:var(--text);font:12px "Bahnschrift","Roboto Condensed","Segoe UI",system-ui,sans-serif;padding:0 12px}
+input::placeholder{color:var(--muted)}
+details.section{border-bottom:1px solid var(--line);padding:6px 0 4px;scroll-margin-top:70px}
+details summary{display:flex;align-items:center;gap:10px;list-style:none;cursor:pointer;user-select:none}
+details summary::-webkit-details-marker{display:none}
+details summary::before{content:"";flex:none;width:7px;height:7px;border-right:1.5px solid var(--muted);border-bottom:1.5px solid var(--muted);transform:rotate(-45deg);transition:transform .15s;margin:0 3px}
+details[open]>summary::before{transform:rotate(45deg)}
+details summary:hover::before{border-color:var(--cream)}
+details summary:focus-visible{outline:2px solid var(--accent);outline-offset:3px;border-radius:4px}
+details.section>summary{padding:18px 0 12px}
+details.section:not([open])>summary{padding-bottom:16px}
+details.section>summary h2{display:flex;align-items:baseline;gap:9px;font-size:20px;font-weight:500;margin:0;color:var(--cream)}
+details.section>.description{margin:-6px 0 0 23px}
+details.section>summary h2 small,.group h3 small{font-size:11px;color:var(--muted);font-weight:400}
+details.section>.files,details.section>.group{margin-left:23px}
+details.section[open]{padding-bottom:22px}
+.description{color:var(--muted);font-size:12px;margin:5px 0 0}
+.group{margin-top:18px}
+.group>summary{padding:4px 0}
+.group>.description{margin-left:23px}
+.group>.files{margin-left:23px}
+.group h3{display:flex;align-items:baseline;gap:8px;font-size:13px;font-weight:600;letter-spacing:.02em;margin:0;color:var(--text2)}
+.group>.description{margin-top:0}
+.files{margin-top:6px}
+.file{display:flex;align-items:stretch;border:1px solid var(--line);border-radius:10px;background:var(--panel);margin-top:8px}
+.file:hover{border-color:var(--accent)}
+.file{position:relative;isolation:isolate}
+/* Living dot patches appear on hover, keyboard focus or touch press; selected items keep theirs on. */
+.dots-canvas{position:absolute;inset:0;z-index:-1;width:100%;height:100%;border-radius:inherit;pointer-events:none;opacity:0;transition:opacity .35s ease}
+.dots-hot>.dots-canvas,.dots-on>.dots-canvas{opacity:1}
+@media(hover:none){
+  a,button,summary,[role="button"],.resource-card,.course-card,.knowledge-card,.file-row,.file{
+    -webkit-touch-callout:none;-webkit-user-select:none;user-select:none;
+  }
+}
+.file-main{display:flex;align-items:center;gap:15px;flex:1;min-width:0;text-decoration:none;padding:15px 17px}
+.file-icon{display:grid;place-items:center;width:42px;height:42px;flex:none;border:1px solid var(--line);border-radius:7px;color:var(--warm);font-size:8px;font-weight:700;letter-spacing:.03em;text-align:center;line-height:1.1;padding:2px}
+.file-icon[data-kind=PDF]{color:var(--accent);border-color:#d64c5040}
+.file-icon[data-kind=Python],.file-icon[data-kind=Jupyter]{color:#e0b85a;border-color:#e0b85a40}
+.file-icon[data-kind="C++"],.file-icon[data-kind=C]{color:#6fa6d6;border-color:#6fa6d640}
+.file-icon[data-kind=Word]{color:#5b9bf0;border-color:#5b9bf040}
+.file-copy{min-width:0;flex:1;overflow-wrap:anywhere}
+.file-copy strong{font-size:13px;font-weight:500}
+.file-copy small{display:block;color:var(--muted);font-size:10px;margin-top:3px}
+.file-meta{font-size:10px;color:var(--muted);white-space:nowrap;text-align:right}
+.file-meta b{display:block;font-weight:500;color:var(--text2);font-size:10px}
+.download{display:grid;place-items:center;width:48px;flex:none;border-left:1px solid var(--line);color:var(--muted);text-decoration:none}
+.download:hover{color:var(--cream)}
+.download svg{width:18px;height:18px}
+.empty{text-align:center;border:1px dashed var(--line);border-radius:11px;padding:40px 20px;color:var(--muted);font-size:12px;margin-top:30px}
+footer{padding:36px 0 27px;color:var(--muted);font-size:10px}
+.sr-only{position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%)}
+@media(max-width:600px){
+  header{padding:17px 16px}.brand strong{font-size:22px}
+  main{padding:29px 16px 0}h1{font-size:32px}
+  .toolbar{flex-direction:column;align-items:stretch;gap:12px}
+  .toolbar label,.toolbar input{width:100%}
+  .file-main{padding:13px;gap:11px}.file-icon{width:36px;height:38px}
+  .file-meta{display:none}
+
+  details.section>.files,details.section>.group,.group>.files,details.section>.description,.group>.description{margin-left:0}
+}
+
+/* Semester cards: the dot field «Осыпание» (semesters.js) with the number on it, as the hub's banner. */
+.semesters{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:14px;margin-top:30px}
+.semester{position:relative;display:block;min-width:0;border:1px solid var(--line);border-radius:12px;overflow:hidden;background:#080d12;text-decoration:none;transition:border-color .2s}
+a.semester:hover{border-color:var(--warm)}
+a.semester:focus-visible{outline:2px solid var(--accent);outline-offset:3px}
+.semester canvas{display:block;width:100%;aspect-ratio:4/5}
+.semester-label{position:absolute;left:0;right:0;bottom:0;display:flex;align-items:flex-end;gap:8px;padding:44px 14px 12px;background:linear-gradient(0deg,rgba(8,13,18,.92),rgba(8,13,18,0));pointer-events:none}
+.semester-label b{font-size:40px;font-weight:600;line-height:.9;color:#ead4b7;font-variant-numeric:tabular-nums}
+.semester-label span{font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:rgba(234,212,183,.7);padding-bottom:3px}
+.semester[data-empty] .semester-label b{color:rgba(234,212,183,.55)}
+@media(max-width:760px){.semesters{grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}.semester-label b{font-size:34px}}

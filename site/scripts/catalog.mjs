@@ -1,0 +1,66 @@
+import { readdir, readFile, stat, writeFile } from 'node:fs/promises';
+import { join, relative, extname, resolve } from 'node:path';
+import { fileURLToPath } from 'node:url';
+
+export const site = resolve(fileURLToPath(new URL('../', import.meta.url)));
+export const content = resolve(site, '..');
+// Folders that are not semesters (_ocr: the OCR tools that come with the downloaded literature).
+const excluded = new Set(['site', 'node_modules', '__pycache__', '_ocr']);
+const viewable = new Set(['.pdf']);
+// Text files the NSU readers show (viewer/notebook): notebooks in viewer.html, sources and notes in code.html.
+const code = new Set(['.py', '.ipynb', '.c', '.h', '.cpp', '.hpp', '.cc', '.cxx', '.hh', '.sh', '.ps1', '.js', '.mjs', '.json', '.yaml', '.yml', '.toml', '.ini', '.cfg', '.md', '.txt', '.csv', '.m', '.wl', '.jl', '.r', '.tex']);
+const isCode = (name, ext) => code.has(ext) || /^(makefile|dockerfile|cmakelists\.txt)$/i.test(name);
+const kinds = { '.py':'Python', '.c':'C', '.h':'C++', '.cpp':'C++', '.hpp':'C++', '.cc':'C++', '.sh':'Shell', '.md':'Markdown', '.json':'JSON', '.txt':'Текст', '.csv':'CSV', '.m':'MATLAB', '.wl':'Wolfram', '.tex':'LaTeX', '.pdf':'PDF', '.docx':'Word', '.doc':'Word', '.djvu':'DjVu', '.par':'Solid Edge', '.asm':'Solid Edge', '.stp':'STEP', '.step':'STEP', '.xlsx':'Excel', '.pptx':'PowerPoint', '.ipynb':'Jupyter', '.zip':'Архив' };
+
+const posix = path => path.split('\\').join('/');
+const plainTitle = name => name.replace(/\.[^.]+$/, '').replace(/_+/g, ' ').replace(/\s+/g, ' ').trim();
+
+export async function readMeta(root = site) {
+  let meta = {};
+  try { meta = JSON.parse(await readFile(join(root, 'meta.json'), 'utf8')); }
+  catch (error) { if (error.code !== 'ENOENT') throw new Error('Проверьте JSON в site/meta.json: ' + error.message); }
+  if (!meta || typeof meta !== 'object' || Array.isArray(meta)) throw new Error('site/meta.json должен содержать объект.');
+  return meta;
+}
+
+// Sections are the semesters (top-level folders «1 семестр»…), groups are the subjects (their subfolders).
+// On the site a file is served at files/<path>.
+export async function collect(root = content, meta = {}) {
+  const described = path => {
+    const entry = meta[path] ?? {};
+    return { title: typeof entry.title === 'string' && entry.title.trim() ? entry.title.trim() : null, description: typeof entry.description === 'string' ? entry.description : '', collapsed: entry.collapsed === true };
+  };
+  const files = [];
+  async function walk(directory) {
+    for (const entry of await readdir(directory, { withFileTypes: true })) {
+      if (entry.isSymbolicLink() || entry.name.startsWith('.') || entry.name.startsWith('~$')) continue;
+      const absolute = join(directory, entry.name);
+      if (entry.isDirectory()) { await walk(absolute); continue; }
+      if (!entry.isFile()) continue;
+      const path = posix(relative(root, absolute)), parts = path.split('/'), ext = extname(entry.name).toLowerCase(), info = await stat(absolute);
+      const { title, description } = described(path);
+      files.push({ path, section: parts[0], group: parts.length > 2 ? parts[1] : '', folder: parts.slice(2, -1).join('/'), name: entry.name, title: title ?? (isCode(entry.name, ext) ? entry.name : plainTitle(entry.name)), description, ext: ext.slice(1), kind: kinds[ext] ?? (ext.slice(1).toUpperCase() || (/^makefile$/i.test(entry.name) ? 'Make' : 'Файл')), bytes: info.size, modified: info.mtime.toISOString(), view: viewable.has(ext) || isCode(entry.name, ext) ? 'files/' + path : null, ...(isCode(entry.name, ext) && { reader: ext === '.ipynb' ? 'notebook' : 'code' }) });
+    }
+  }
+  // "$order" lists section and group names that go first, in that order.
+  const order = Array.isArray(meta.$order) ? meta.$order : [];
+  const rank = name => { const i = order.indexOf(name); return i < 0 ? order.length : i; };
+  const sections = [];
+  for (const entry of await readdir(root, { withFileTypes: true })) {
+    if (!entry.isDirectory() || entry.isSymbolicLink() || entry.name.startsWith('.') || excluded.has(entry.name)) continue;
+    const before = files.length;
+    await walk(join(root, entry.name));
+    const own = files.slice(before), groups = [...new Set(own.map(f => f.group).filter(Boolean))].sort((a, b) => rank(a) - rank(b) || a.localeCompare(b, 'ru', { numeric: true }));
+    const { title, description, collapsed } = described(entry.name);
+    sections.push({ name: entry.name, title: title ?? entry.name, description, collapsed, groups: groups.map(name => ({ name, ...described(entry.name + '/' + name), title: described(entry.name + '/' + name).title ?? name })) });
+  }
+  sections.sort((a, b) => rank(a.name) - rank(b.name) || a.name.localeCompare(b.name, 'ru', { numeric: true }));
+  files.sort((a, b) => a.title.localeCompare(b.title, 'ru'));
+  return { version: 2, sections, files };
+}
+
+export async function writeCatalog() {
+  const catalog = await collect(content, await readMeta());
+  await writeFile(join(site, 'materials.json'), JSON.stringify(catalog, null, 2) + '\n');
+  return catalog;
+}
