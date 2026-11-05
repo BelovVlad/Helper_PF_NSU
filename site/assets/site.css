@@ -9,19 +9,13 @@
 body{margin:0;background:var(--bg);color:var(--text);font:14px/1.5 "Bahnschrift","Roboto Condensed","Segoe UI",system-ui,sans-serif}
 a{color:inherit}
 a:focus-visible,input:focus-visible{outline:2px solid var(--accent);outline-offset:3px}
-header{display:flex;align-items:center;justify-content:space-between;gap:20px;border-bottom:1px solid var(--line);padding:21px max(25px,calc((100vw - 1000px)/2))}
-.brand{display:flex;align-items:center;gap:12px;text-decoration:none}
-.brand strong{font:700 24px "Bahnschrift","Roboto Condensed","Segoe UI",system-ui,sans-serif;color:var(--cream)}
-.back{color:var(--muted);text-decoration:none;font-size:12px}.back:hover{color:var(--cream)}
+.brand{display:flex;align-items:center;gap:11px;text-decoration:none;flex:none;margin-right:auto}
+.brand strong{font:600 22px/1 "Bahnschrift","Roboto Condensed","Segoe UI",system-ui,sans-serif;color:var(--text);letter-spacing:-.01em}
 main{max-width:1050px;margin:auto;padding:44px 25px 0}
 .eyebrow{font-size:9px;letter-spacing:.16em;color:var(--muted);margin:0 0 12px}
 h1{font-size:37px;font-weight:500;letter-spacing:-.04em;margin:0;color:var(--cream)}
 .intro>p:last-child{color:var(--muted);font-size:13px;margin:12px 0 0;max-width:620px}
-.toolbar{position:sticky;top:0;z-index:2;display:flex;align-items:center;justify-content:space-between;gap:16px;background:var(--bg);border-bottom:1px solid var(--line);padding:16px 0;margin-top:26px}
 .crumb{display:inline-block;color:var(--muted);text-decoration:none;font-size:12px;margin-bottom:12px}.crumb:hover{color:var(--cream)}
-#semester-count{color:var(--muted);font-size:12px}
-input{width:230px;max-width:100%;height:36px;border:1px solid var(--line);border-radius:7px;background:var(--panel);color:var(--text);font:12px "Bahnschrift","Roboto Condensed","Segoe UI",system-ui,sans-serif;padding:0 12px}
-input::placeholder{color:var(--muted)}
 details.section{border-bottom:1px solid var(--line);padding:6px 0 4px;scroll-margin-top:70px}
 details summary{display:flex;align-items:center;gap:10px;list-style:none;cursor:pointer;user-select:none}
 details summary::-webkit-details-marker{display:none}
@@ -44,7 +38,7 @@ details.section[open]{padding-bottom:22px}
 .group h3{display:flex;align-items:baseline;gap:8px;font-size:13px;font-weight:600;letter-spacing:.02em;margin:0;color:var(--text2)}
 .group>.description{margin-top:0}
 .files{margin-top:6px}
-.file{display:flex;align-items:stretch;border:1px solid var(--line);border-radius:10px;background:var(--panel);margin-top:8px}
+.file{display:flex;align-items:stretch;border:1px solid var(--line);border-radius:10px;background:var(--panel);margin-top:6px}
 .file:hover{border-color:var(--accent)}
 .file{position:relative;isolation:isolate}
 /* Living dot patches appear on hover, keyboard focus or touch press; selected items keep theirs on. */
@@ -55,13 +49,14 @@ details.section[open]{padding-bottom:22px}
     -webkit-touch-callout:none;-webkit-user-select:none;user-select:none;
   }
 }
-.file-main{display:flex;align-items:center;gap:15px;flex:1;min-width:0;text-decoration:none;padding:15px 17px}
-.file-icon{display:grid;place-items:center;width:42px;height:42px;flex:none;border:1px solid var(--line);border-radius:7px;color:var(--warm);font-size:8px;font-weight:700;letter-spacing:.03em;text-align:center;line-height:1.1;padding:2px}
+.file-main{display:flex;align-items:center;gap:13px;flex:1;min-width:0;text-decoration:none;padding:10px 14px}
+.file-icon{display:grid;place-items:center;width:34px;height:36px;flex:none;border:1px solid var(--line);border-radius:7px;color:var(--warm);font-size:8px;font-weight:700;letter-spacing:.03em;text-align:center;line-height:1.1;padding:2px}
 .file-icon[data-kind=PDF]{color:var(--accent);border-color:#d64c5040}
 .file-icon[data-kind=Python],.file-icon[data-kind=Jupyter]{color:#e0b85a;border-color:#e0b85a40}
 .file-icon[data-kind="C++"],.file-icon[data-kind=C]{color:#6fa6d6;border-color:#6fa6d640}
 .file-icon[data-kind=Word]{color:#5b9bf0;border-color:#5b9bf040}
 .file-copy{min-width:0;flex:1;overflow-wrap:anywhere}
+.file-copy strong{display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
 .file-copy strong{font-size:13px;font-weight:500}
 .file-copy small{display:block;color:var(--muted);font-size:10px;margin-top:3px}
 .file-meta{font-size:10px;color:var(--muted);white-space:nowrap;text-align:right}
@@ -73,11 +68,8 @@ details.section[open]{padding-bottom:22px}
 footer{padding:36px 0 27px;color:var(--muted);font-size:10px}
 .sr-only{position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%)}
 @media(max-width:600px){
-  header{padding:17px 16px}.brand strong{font-size:22px}
   main{padding:29px 16px 0}h1{font-size:32px}
-  .toolbar{flex-direction:column;align-items:stretch;gap:12px}
-  .toolbar label,.toolbar input{width:100%}
-  .file-main{padding:13px;gap:11px}.file-icon{width:36px;height:38px}
+  .file-main{padding:9px 11px;gap:10px}.file-icon{width:30px;height:34px}
   .file-meta{display:none}
 
   details.section>.files,details.section>.group,.group>.files,details.section>.description,.group>.description{margin-left:0}
@@ -95,3 +87,48 @@ a.semester:focus-visible{outline:2px solid var(--accent);outline-offset:3px}
 .semester[data-empty] .semester-label b{color:rgba(234,212,183,.55)}
 @media(max-width:760px){.semesters{grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}.semester-label b{font-size:34px}}
 .file.pending .file-main{cursor:default}.file.pending{opacity:.55}
+
+/* Top bar as on the hub: the logo, the search and the way back; on phones the search sits right under the logo. */
+.topbar{height:76px;display:flex;align-items:center;gap:20px;padding:0 max(28px,calc((100vw - 1100px)/2));border-bottom:1px solid var(--line)}
+.searchbox{position:relative;display:flex;align-items:center;gap:10px;width:min(520px,48vw);min-width:0;height:42px;border:1px solid var(--line);border-radius:11px;padding:0 6px 0 14px;color:var(--muted);background:var(--panel);cursor:text;-webkit-touch-callout:none}
+.searchbox:focus-within{border-color:var(--warm)}
+.search-icon{width:17px;height:17px;flex:none}
+.searchbox input{flex:1;min-width:0;height:100%;padding:0;border:0;background:none;color:var(--text);font:14px "Bahnschrift","Roboto Condensed","Segoe UI",system-ui,sans-serif;outline:none}
+.searchbox input::placeholder{color:var(--muted)}
+.searchbox input::-webkit-search-cancel-button{filter:grayscale(1);opacity:.6}
+.ai-button{flex:none;display:grid;place-items:center;width:32px;height:32px;border:0;border-radius:8px;background:none;cursor:pointer;padding:0}
+.ai-button img{width:20px;height:20px;transition:transform .25s}
+.ai-button:hover{background:var(--bg)}.ai-button:hover img{transform:rotate(40deg)}
+.ai-button:focus-visible{outline:2px solid var(--accent);outline-offset:1px}
+.hub-link{display:grid;place-items:center;width:40px;height:40px;flex:none;border-radius:10px;color:var(--text2)}
+.hub-link svg{width:20px;height:20px}
+.hub-link:hover{background:var(--panel);color:var(--cream)}
+.count{color:var(--muted);font-size:12px;margin:8px 0 0}
+#semester .intro,#results .intro{padding-bottom:20px;border-bottom:1px solid var(--line)}
+#sections{padding-top:6px}
+@media(max-width:760px){
+  .topbar{height:auto;flex-wrap:wrap;gap:12px;padding:14px 16px}
+  .searchbox{order:2;flex-basis:100%;width:100%;height:42px}
+}
+
+/* A semester's subjects as folders: a tile with a dot field; inside, only that subject's books. */
+.folders{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:12px;margin-top:18px}
+.folder{position:relative;display:flex;flex-direction:column;justify-content:flex-end;gap:4px;min-height:132px;padding:14px;border:1px solid var(--line);border-radius:14px;background:var(--panel);text-decoration:none;overflow:hidden;isolation:isolate;transition:border-color .2s,transform .2s}
+.folder canvas{position:absolute;inset:0;z-index:-1;width:100%;height:100%;opacity:.6;transition:opacity .25s}
+.folder b{font-size:15px;font-weight:500;line-height:1.2;color:var(--text)}
+.folder span{font-size:12px;color:var(--muted)}
+.folder:hover{border-color:var(--warm)}.folder:hover canvas{opacity:.9}
+.folder:active{transform:scale(.985)}
+.folder:focus-visible{outline:2px solid var(--accent);outline-offset:3px}
+@media(max-width:600px){.folders{grid-template-columns:1fr 1fr;gap:10px}.folder{min-height:118px;padding:12px}.folder b{font-size:14px}}
+
+/* Full-text hits from the home server. */
+.hits{display:flex;flex-direction:column;gap:8px;margin-top:16px}
+.hit{display:flex;flex-direction:column;gap:5px;padding:12px 14px;border:1px solid var(--line);border-radius:10px;background:var(--panel);text-decoration:none}
+a.hit:hover{border-color:var(--warm)}
+.hit-head{display:flex;align-items:baseline;justify-content:space-between;gap:12px}
+.hit-head strong{font-size:13px;font-weight:500}
+.hit-page{flex:none;font-size:11px;color:var(--warm);font-variant-numeric:tabular-nums}
+.hit-snippet{font-size:12px;line-height:1.5;color:var(--text2);white-space:pre-line;display:-webkit-box;-webkit-line-clamp:4;-webkit-box-orient:vertical;overflow:hidden}
+.hit-snippet mark{background:none;color:var(--cream);font-weight:600}
+.hit small{font-size:10px;color:var(--muted)}

@@ -89,7 +89,8 @@ function isLiteraturePdf(path){
   if(!path)return false;
   return path.split('/').some(part=>/литерат/i.test(part));
 }
-const toneEligible=subject==='КМ'||subject==='ДЛ'||isLiteraturePdf(raw)||(raw||'').split('/')[0]==='ДЛ';
+// Every book in the Helper is literature: the colour modes (black, original, own palette) are on for all of them.
+const toneEligible=true;
 toneSwitch.hidden=!toneEligible;
 
 function toneStorageKey(){return 'nsu-pdf-tone-v2:'+(raw||'default')}
