@@ -57,7 +57,7 @@
 
   const cards = [];
   function fit(card) {
-    const box = card.canvas.getBoundingClientRect(), ratio = Math.min(2, devicePixelRatio || 1);
+    const box = card.canvas.getBoundingClientRect(), ratio = Math.min(matchMedia('(pointer: coarse)').matches ? 1.5 : 2, devicePixelRatio || 1);
     if (!box.width) return false;
     const W = Math.round(box.width * ratio), H = Math.round(box.height * ratio);
     if (card.canvas.width !== W || card.canvas.height !== H) { card.canvas.width = W; card.canvas.height = H; }
@@ -67,10 +67,15 @@
     card.ctx.setTransform(ratio, 0, 0, ratio, 0, 0);
     return true;
   }
+  // Dots are gathered into a few buckets by colour and opacity and each bucket is filled as one path:
+  // a card has some 700 dots, and one fill per dot kept phones busy.
+  const LEVELS = 12, buckets = Array.from({ length: LEVELS * 2 }, () => []);
+  const styles = buckets.map((_, k) => k < LEVELS ? `rgba(${CREAM},${((k + 1) / LEVELS).toFixed(3)})` : `rgba(${RED},${(.92 * (k - LEVELS + 1) / LEVELS).toFixed(3)})`);
   function draw(card, t) {
-    if (!fit(card)) return;
+    if (!card.w && !fit(card)) return;
     const { ctx } = card, sample = crumble(card, t), scale = GAP / 13 * 1.25, p = card.pointer;
     ctx.fillStyle = '#080d12'; ctx.fillRect(0, 0, card.w, card.h);
+    for (const b of buckets) b.length = 0;
     for (let j = 0; j < card.rows; j++) for (let i = 0; i < card.cols; i++) {
       const x = card.ox + (i + .5) * GAP, y = card.oy + (j + .5) * GAP, d = sample(i, j, x, y);
       let s = clamp01(d.s), dx = d.dx || 0, dy = d.dy || 0;
@@ -81,8 +86,14 @@
       }
       const a = d.a ?? 1;
       if ((s < .02 && !d.red) || a < .02) continue;
-      ctx.fillStyle = d.red ? `rgba(${RED},${(.92 * a).toFixed(3)})` : `rgba(${CREAM},${Math.min(1, a * (.3 + .7 * s)).toFixed(3)})`;
-      ctx.beginPath(); ctx.arc(x + dx, y + dy, (.45 + 2.2 * s) * scale, 0, Math.PI * 2); ctx.fill();
+      const alpha = d.red ? a : Math.min(1, a * (.3 + .7 * s)), level = Math.min(LEVELS - 1, Math.max(0, Math.round(alpha * LEVELS) - 1));
+      buckets[(d.red ? LEVELS : 0) + level].push(x + dx, y + dy, (.45 + 2.2 * s) * scale);
+    }
+    for (let k = 0; k < buckets.length; k++) {
+      const b = buckets[k]; if (!b.length) continue;
+      ctx.fillStyle = styles[k]; ctx.beginPath();
+      for (let n = 0; n < b.length; n += 3) { ctx.moveTo(b[n] + b[n + 2], b[n + 1]); ctx.arc(b[n], b[n + 1], b[n + 2], 0, 6.2832); }
+      ctx.fill();
     }
   }
 
@@ -93,19 +104,20 @@
       const card = { canvas, ctx: canvas.getContext('2d'), n: Number(canvas.closest('.semester').dataset.semester) || 1, pointer: { x: 0, y: 0, on: false }, visible: true };
       canvas.addEventListener('pointermove', e => { const box = canvas.getBoundingClientRect(); card.pointer.x = e.clientX - box.left; card.pointer.y = e.clientY - box.top; card.pointer.on = e.pointerType === 'mouse'; });
       canvas.addEventListener('pointerleave', () => { card.pointer.on = false; });
-      cards.push(card); seen.observe(canvas); draw(card, now());
+      cards.push(card); seen.observe(canvas); fit(card); draw(card, now());
     }
     for (let k = cards.length - 1; k >= 0; k--) if (!cards[k].canvas.isConnected) { seen.unobserve(cards[k].canvas); cards.splice(k, 1); }
     start();
   }
+  const FRAME = matchMedia('(pointer: coarse)').matches ? 50 : 33;
   let running = false, drawnAt = -Infinity;
   function loop(stamp) {
     if (!moving()) { running = false; return; }
-    if (!document.hidden && stamp - drawnAt >= 33) { drawnAt = stamp; const t = now(); for (const card of cards) if (card.visible) draw(card, t); }
+    if (!document.hidden && stamp - drawnAt >= FRAME) { drawnAt = stamp; const t = now(); for (const card of cards) if (card.visible) draw(card, t); }
     requestAnimationFrame(loop);
   }
   function start() { if (!running && moving()) { running = true; requestAnimationFrame(loop); } }
-  const redraw = () => { const t = now(); for (const card of cards) draw(card, t); start(); };
+  const redraw = () => { const t = now(); for (const card of cards) { card.w = 0; draw(card, t); } start(); };
   let resizing; addEventListener('resize', () => { clearTimeout(resizing); resizing = setTimeout(redraw, 120); });
   still.addEventListener('change', redraw);
   addEventListener('load', () => dots()?.onChange?.(redraw));

@@ -66,14 +66,16 @@ function route() {
   if (!section) { show('home'); document.title = 'Хелпер ФФ · Hyle'; window.HelperSemesters?.redraw(); scrollTo(0, 0); return; }
   show('semester');
   const crumb = $('crumb');
-  crumb.textContent = group ? '← ' + section.title : '← Все семестры';
   crumb.href = group ? anchor(section.name) : './';
+  crumb.setAttribute('aria-label', group ? 'Назад: ' + section.title : 'Назад: все семестры');
+  $('crumb-label').textContent = group ? section.title : 'Хелпер ФФ';
   $('semester-title').textContent = group ? group.title : section.title;
   const note = $('semester-note'), text = group ? group.description : section.description;
   note.textContent = text || ''; note.hidden = !text;
   document.title = (group ? group.title + ' · ' : '') + section.title + ' · Хелпер ФФ · Hyle';
   const files = catalog.files.filter(f => f.section === section.name && (!group || f.group === group.name));
   $('semester-count').textContent = books(files.length);
+  views.semester.dataset.level = group ? 'subject' : 'semester';
   container.replaceChildren();
   if (group) container.append(files.length ? list(files) : el('p', 'empty', 'Пока пусто'));
   else renderFolders(section, files);
@@ -134,7 +136,7 @@ function filterTitles() {
   const files = catalog.files.filter(f => (!s.section || f.section === s.section.name) && (!s.group || f.group === s.group.name)
     && words.every(w => lower([f.title, f.description, f.path].join(' ')).includes(w)));
   show('results');
-  $('results-scope').textContent = 'НАЗВАНИЯ · ' + s.label.toUpperCase();
+  $('results-scope').textContent = 'Названия · ' + s.label;
   $('results-title').textContent = '«' + search.value.trim() + '»';
   $('results-count').textContent = (files.length ? books(files.length) : 'Нет книг с таким названием') + ' · Enter — искать в тексте книг';
   const box = $('results-list'); box.replaceChildren();
@@ -145,7 +147,7 @@ async function searchText() {
   const q = search.value.trim(); if (!q) return;
   const s = scope(), run = ++fullRun, box = $('results-list');
   show('results');
-  $('results-scope').textContent = 'ТЕКСТ КНИГ · ' + s.label.toUpperCase();
+  $('results-scope').textContent = 'Текст книг · ' + s.label;
   $('results-title').textContent = '«' + q + '»';
   $('results-count').textContent = 'Ищу в тексте…';
   box.replaceChildren();
