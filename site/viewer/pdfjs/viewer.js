@@ -238,7 +238,10 @@ function clearHighlights(layer=null){
 function clearAnnotations(){annotationLayer.replaceChildren()}
 function clearTextLayer(layer=textLayer){if(layer){textTasks.get(layer)?.cancel();textTasks.delete(layer);layer.replaceChildren()}}
 
+// Books hosted elsewhere ("$booksBase" in meta.json) come as a full, already encoded https:// address.
+const isAbsoluteUrl=p=>/^https?:\/\//i.test(p);
 function resolvePdfUrl(path,lfs=params.get('lfs')==='1'){
+  if(isAbsoluteUrl(path)&&!lfs){const url=new URL(path);if(versionParam)url.searchParams.set('v',versionParam);return url.href}
   const url=lfs
     ?new URL(`https://media.githubusercontent.com/media/${OWNER}/${REPO}/${BRANCH}/${encPath(path)}`)
     :new URL('../../'+encPath(path.replace(/^\/+/,'')),location.href);
@@ -1158,7 +1161,7 @@ async function open(){
   lockReaderChrome(1000);
   title.textContent=titleParam||raw.split('/').pop();document.title=(titleParam||READER.defaultTitle)+READER.titleSuffix;showLoading('Открываю документ…');
   try{
-    pdfUrl=resolvePdfUrl(raw);direct.href=sourceParam?new URL('../../'+encPath(sourceParam),location.href).href:pdfUrl;
+    pdfUrl=resolvePdfUrl(raw);direct.href=sourceParam?(isAbsoluteUrl(sourceParam)?new URL(sourceParam).href:new URL('../../'+encPath(sourceParam),location.href).href):pdfUrl;
     const hints=searchPreviewParam?Promise.resolve(null):loadPageSizeHints();
     pdf=await loadPdfDocument(pdfUrl);
     const sizes=await Promise.race([hints,new Promise(resolve=>setTimeout(()=>resolve(null),1500))]);
