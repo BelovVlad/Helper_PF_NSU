@@ -9,7 +9,7 @@ await rm(output, { recursive: true, force: true });
 await mkdir(output, { recursive: true });
 const catalog = await writeCatalog();
 for (const path of ['index.html', 'assets', 'viewer', 'materials.json']) await cp(join(site, path), join(output, path), { recursive: true });
-for (const file of catalog.files) {
+for (const file of catalog.files.filter(f => !f.remote)) {
   const target = join(output, 'files', file.path);
   await mkdir(dirname(target), { recursive: true });
   await cp(join(content, file.path), target);

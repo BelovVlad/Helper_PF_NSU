@@ -45,18 +45,50 @@ export async function collect(root = content, meta = {}) {
   // "$order" lists section and group names that go first, in that order.
   const order = Array.isArray(meta.$order) ? meta.$order : [];
   const rank = name => { const i = order.indexOf(name); return i < 0 ? order.length : i; };
-  const sections = [];
+  const names = [];
   for (const entry of await readdir(root, { withFileTypes: true })) {
     if (!entry.isDirectory() || entry.isSymbolicLink() || entry.name.startsWith('.') || excluded.has(entry.name)) continue;
-    const before = files.length;
+    names.push(entry.name);
     await walk(join(root, entry.name));
-    const own = files.slice(before), groups = [...new Set(own.map(f => f.group).filter(Boolean))].sort((a, b) => rank(a) - rank(b) || a.localeCompare(b, 'ru', { numeric: true }));
-    const { title, description, collapsed } = described(entry.name);
-    sections.push({ name: entry.name, title: title ?? entry.name, description, collapsed, groups: groups.map(name => ({ name, ...described(entry.name + '/' + name), title: described(entry.name + '/' + name).title ?? name })) });
   }
+  // The books are too big for git: site/books.json lists them (site/scripts/books.mjs), and a book that is
+  // not on disk opens from "$booksBase" when it is set, otherwise it is listed without a link.
+  const base = typeof meta.$booksBase === 'string' ? meta.$booksBase.replace(/\/?$/, '/') : '';
+  const present = new Set(files.map(f => f.path));
+  for (const book of await readBooks(root)) {
+    if (present.has(book.path)) continue;
+    const parts = book.path.split('/'), name = parts.at(-1), ext = extname(name).toLowerCase();
+    if (!names.includes(parts[0])) names.push(parts[0]);
+    const { title, description } = described(book.path);
+    files.push({ path: book.path, section: parts[0], group: parts.length > 2 ? parts[1] : '', folder: parts.slice(2, -1).join('/'), name, title: title ?? plainTitle(name), description, ext: ext.slice(1), kind: kinds[ext] ?? ext.slice(1).toUpperCase(), bytes: book.bytes, modified: book.modified, view: base && viewable.has(ext) ? base + book.path.split('/').map(encodeURIComponent).join('/') : null, remote: true, ...(base && { href: base + book.path.split('/').map(encodeURIComponent).join('/') }) });
+  }
+  const sections = names.map(name => {
+    const groups = [...new Set(files.filter(f => f.section === name).map(f => f.group).filter(Boolean))].sort((a, b) => rank(a) - rank(b) || a.localeCompare(b, 'ru', { numeric: true }));
+    const { title, description, collapsed } = described(name);
+    return { name, title: title ?? name, description, collapsed, groups: groups.map(g => ({ name: g, ...described(name + '/' + g), title: described(name + '/' + g).title ?? g })) };
+  });
   sections.sort((a, b) => rank(a.name) - rank(b.name) || a.name.localeCompare(b.name, 'ru', { numeric: true }));
   files.sort((a, b) => a.title.localeCompare(b.title, 'ru'));
   return { version: 2, sections, files };
+}
+
+async function readBooks(root) {
+  try {
+    const list = JSON.parse(await readFile(join(root, 'site', 'books.json'), 'utf8'));
+    return (Array.isArray(list.books) ? list.books : []).filter(b => typeof b.path === 'string' && !b.path.split('/').some(p => p === '..' || p.startsWith('.')));
+  } catch (error) {
+    if (error.code === 'ENOENT') return [];
+    throw new Error('Проверьте JSON в site/books.json: ' + error.message);
+  }
+}
+
+// site/books.json: every book on this computer, so that the site built without them (GitHub) still lists them.
+export async function writeBookList(root = content) {
+  const catalog = await collect(root, {});
+  const books = catalog.files.filter(f => !f.remote && f.ext === 'pdf').map(f => ({ path: f.path, bytes: f.bytes, modified: f.modified }));
+  books.sort((a, b) => a.path.localeCompare(b.path, 'ru', { numeric: true }));
+  await writeFile(join(root, 'site', 'books.json'), JSON.stringify({ books }, null, 1) + '\n');
+  return books;
 }
 
 export async function writeCatalog() {

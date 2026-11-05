@@ -31,18 +31,19 @@ function fileRow(file) {
   const main = el('a', 'file-main');
   if (file.view) {
     const params = new URLSearchParams({ file: file.view, title: file.title, subject: file.section });
-    if (file.view !== 'files/' + file.path) params.set('source', 'files/' + file.path);
+    if (file.view !== 'files/' + file.path) params.set('source', file.href || 'files/' + file.path);
     // Notebooks and code open in the NSU readers (viewer/notebook), everything else in the PDF reader.
     main.href = `./viewer/${file.reader === 'notebook' ? 'notebook/viewer' : file.reader === 'code' ? 'notebook/code' : 'pdfjs/viewer'}.html?` + params;
-  } else { main.href = url('files/' + file.path); main.download = file.name; }
+  } else if (file.remote) { main.removeAttribute('href'); row.classList.add('pending'); main.title = 'Книга ещё не выложена на сайт'; }
+  else { main.href = url('files/' + file.path); main.download = file.name; }
   const badge = el('span', 'file-icon', file.kind); badge.dataset.kind = file.kind;
   const copy = el('span', 'file-copy');
   copy.append(el('strong', '', file.title), el('small', '', file.description || [file.folder, file.name].filter(Boolean).join(' / ')));
   const meta = el('span', 'file-meta');
-  meta.append(el('b', '', size(file.bytes)), document.createTextNode(file.view ? 'открыть' : 'скачать'));
+  meta.append(el('b', '', size(file.bytes)), document.createTextNode(file.view ? 'открыть' : file.remote ? 'скоро' : 'скачать'));
   main.append(badge, copy, meta); row.append(main);
   if (file.view) {
-    const download = el('a', 'download'); download.href = url('files/' + file.path); download.download = file.name;
+    const download = el('a', 'download'); download.href = file.href || url('files/' + file.path); download.download = file.name;
     download.title = download.ariaLabel = 'Скачать ' + file.name + ' · ' + date(file.modified); download.innerHTML = downloadIcon;
     row.append(download);
   }

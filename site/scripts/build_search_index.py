@@ -21,7 +21,7 @@ import pymupdf
 ROOT = Path(__file__).resolve().parents[2]
 SITE = ROOT / 'site'
 OUT = SITE / 'viewer' / 'search-index'
-EXCLUDED = {'site', 'node_modules', '__pycache__'}  # same as site/scripts/catalog.mjs
+EXCLUDED = {'site', 'node_modules', '__pycache__', '_ocr'}  # same as site/scripts/catalog.mjs
 # Code files open in viewer/notebook/code.html; their type is the extension, a hit is a line (pieces of 30 lines).
 CODE = {'.py', '.c', '.h', '.cc', '.cpp', '.cxx', '.hpp', '.hh', '.sh', '.ps1', '.js', '.mjs', '.json', '.yaml', '.yml',
         '.toml', '.ini', '.cfg', '.md', '.txt', '.m', '.jl', '.wl', '.tex', '.r'}

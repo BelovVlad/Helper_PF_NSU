@@ -4,3 +4,8 @@ site/materials.json
 node_modules/
 ~$*
 site/viewer/search-index/
+
+# Books (~8 GB) stay out of git: site/books.json lists them (npm run books in site/)
+/[1-8] семестр/**/*.pdf
+/[1-8] семестр/**/*.djvu
+/[1-8] семестр/**/*.7z
