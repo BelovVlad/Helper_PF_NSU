@@ -221,7 +221,7 @@ function jumpToPage(){if(!pdf)return;pageNum=validPage(pageJumpInput.value,pageN
 function closeOutline(){outlinePanel.classList.remove('open');document.body.classList.remove('outline-open');outlineToggle.setAttribute('aria-expanded','false')}
 async function openOutline(){if(!pdf)return;setReaderChromeHidden(false);closeTools();closeSearch();outlinePanel.classList.add('open');document.body.classList.add('outline-open');outlineToggle.setAttribute('aria-expanded','true');if(!outlineLoaded)await loadOutline()}
 function openSearch(){setReaderChromeHidden(false);closeTools();closeOutline();searchPanel.classList.add('open');document.body.classList.add('search-open');searchToggle.setAttribute('aria-expanded','true');void loadIndexedSearchPages();setTimeout(()=>searchInput.focus(),0)}
-function closeSearch(){searchToken++;searchBusy=false;searchPanel.classList.remove('open');document.body.classList.remove('search-open');searchToggle.setAttribute('aria-expanded','false');searchStatus.textContent='Enter — найти';clearHighlights()}
+function closeSearch(){searchToken++;searchBusy=false;searchPanel.classList.remove('open');document.body.classList.remove('search-open');searchToggle.setAttribute('aria-expanded','false');searchQuery='';searchPage=0;searchOccurrence=-1;searchSource='auto';searchStatus.textContent='Enter — найти';clearHighlights()}
 function resetSearch(){searchToken++;searchBusy=false;searchQuery='';searchPage=pageNum;searchOccurrence=-1;searchSource='auto';searchStatus.textContent=searchInput.value.trim()?'Enter — найти':'Введите текст';clearHighlights()}
 function runExternalFind(query){
   const value=String(query||'').trim();
@@ -229,7 +229,12 @@ function runExternalFind(query){
   searchInput.value=value;
   resetSearch();
   searchInput.blur();
-  if(value)void searchStep(1);
+  if(value){
+    setReaderChromeHidden(false);closeTools();closeOutline();
+    searchPanel.classList.add('open');document.body.classList.add('search-open');
+    searchToggle.setAttribute('aria-expanded','true');
+    void searchStep(1);
+  }
 }
 function clearHighlights(layer=null){
   if(layer){layer.replaceChildren();return}
@@ -354,9 +359,10 @@ async function getPageSearchData(n){
 async function drawSearchHighlights(page,viewport,layer=highlightLayer,targetPage=pageNum){
   clearHighlights(layer);
   if(!searchQuery||searchPage!==targetPage)return;
+  const highlightToken=searchToken;
   try{
     const data=await getPageSearchData(targetPage);
-    if(searchPage!==targetPage)return;
+    if(highlightToken!==searchToken||!searchQuery||searchPage!==targetPage)return;
     layer.style.width=`${viewport.width}px`;layer.style.height=`${viewport.height}px`;
     for(const item of data.items){
       const ranges=itemHighlightRanges(item.str,searchQuery);
